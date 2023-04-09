@@ -13,7 +13,7 @@ def upload(key_object, data):
         json.dump(data, outfile)
         print('temp:', outfile)
     path = "/tmp/" + file_name
-    client.upload_file(path, bucket, file_name)
+    client.upload_file(path, bucket, "results/"+file_name)
     print("Upload feito com sucesso.")
 
 
