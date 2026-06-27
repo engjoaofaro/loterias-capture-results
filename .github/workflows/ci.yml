@@ -33,7 +33,7 @@ jobs:
       - name: Deploy (update code only)
         run: |
           pip install -r requirements.txt -t build
-          cp lambda_function.py build/
+          cp lambda_function.py secret.py build/
           cp -r s3 build/
           (cd build && zip -r ../fn.zip . -x '*/__pycache__/*' -x '*.pyc' >/dev/null)
           aws lambda update-function-code --function-name loterias-capture-results --zip-file fileb://fn.zip

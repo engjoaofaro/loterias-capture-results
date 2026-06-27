@@ -2,6 +2,7 @@ import requests
 import os
 
 from s3.put_file import upload
+from secret import get_api_token
 
 megasena = 'megasena'
 lotofacil = 'lotofacil'
@@ -10,11 +11,11 @@ lotomania = 'lotomania'
 loterias = [megasena, lotomania, lotofacil]
 
 base_url = os.getenv('BASE_URL')
-token = os.getenv('TOKEN')
 
 
 def lambda_handler(event, context):
     print(event, context)
+    token = get_api_token()
 
     for loteria in loterias:
         print("Obtendo último resultado: ", loteria)
