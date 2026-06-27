@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m py_compile lambda_function.py s3/put_file.py
+      # (sem suíte de testes ainda; valida apenas a sintaxe)
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: sa-east-1
+      - name: Deploy (update code only)
+        run: |
+          pip install -r requirements.txt -t build
+          cp lambda_function.py build/
+          cp -r s3 build/
+          (cd build && zip -r ../fn.zip . -x '*/__pycache__/*' -x '*.pyc' >/dev/null)
+          aws lambda update-function-code --function-name loterias-capture-results --zip-file fileb://fn.zip
